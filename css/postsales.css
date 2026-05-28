@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Post-sales Tables & Highlighting
+   ========================================================================== */
+.postsales-table-wrapper {
+  margin-top: 24px;
+}
+
+/* Row Alert for Difficulty Help (困難求助) */
+.data-table tbody tr.difficulty-flagged {
+  background-color: rgba(239, 68, 68, 0.04);
+  border-left: 4px solid var(--color-danger);
+}
+
+.data-table tbody tr.difficulty-flagged:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.difficulty-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-danger);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: help;
+  position: relative;
+}
+
+.difficulty-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--border-radius-round);
+  background-color: var(--color-danger);
+  box-shadow: 0 0 6px var(--color-danger);
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Difficulty details popup / tooltip in cell */
+.difficulty-tooltip {
+  visibility: hidden;
+  background-color: #1e293b;
+  color: #fff;
+  text-align: left;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--border-radius-md);
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  font-weight: 400;
+  font-size: 0.75rem;
+  opacity: 0;
+  box-shadow: var(--shadow-md);
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+}
+
+.difficulty-indicator:hover .difficulty-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Progress Bar Widget in Table Rows
+   ========================================================================== */
+.invoice-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 140px;
+}
+
+.progress-track {
+  flex-grow: 1;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+  border-radius: 3px;
+  width: 0%;
+  transition: width var(--transition-slow) ease-out;
+}
+
+.progress-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Table Action Icons and Inline Form Selectors
+   ========================================================================== */
+.inline-select {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-main);
+  padding: 4px 8px;
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.inline-select:focus {
+  border-color: var(--color-primary);
+}
+
+.action-buttons-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-icon-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-table-row-hover);
+}
+
+.action-icon-btn.delete:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  background-color: var(--color-danger-glow);
+}

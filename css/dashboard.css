@@ -1,0 +1,316 @@
+/* ==========================================================================
+   Dashboard Metrics
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-primary);
+}
+
+.stat-card.success::before { background-color: var(--color-success); }
+.stat-card.warning::before { background-color: var(--color-warning); }
+.stat-card.secondary::before { background-color: var(--color-secondary); }
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.stat-unit {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+
+.stat-meta {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-meta.increase { color: var(--color-success); }
+.stat-meta.decrease { color: var(--color-danger); }
+
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary-glow);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.stat-card.success .stat-icon-wrapper {
+  background-color: var(--color-success-glow);
+  color: var(--color-success);
+}
+
+.stat-card.warning .stat-icon-wrapper {
+  background-color: var(--color-warning-glow);
+  color: var(--color-warning);
+}
+
+.stat-card.secondary .stat-icon-wrapper {
+  background-color: rgba(236, 72, 153, 0.15);
+  color: var(--color-secondary);
+}
+
+/* ==========================================================================
+   Dashboard Content Grid
+   ========================================================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-panel {
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Chart Visualizer Styles */
+.chart-container {
+  height: 220px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px 10px 0;
+  position: relative;
+  gap: 16px;
+}
+
+.chart-axis-y {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.chart-grid-line {
+  border-bottom: 1px dashed var(--color-border);
+  width: 100%;
+  height: 0;
+}
+
+.chart-bars {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  z-index: 1;
+}
+
+.chart-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  max-width: 60px;
+}
+
+.chart-bar-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.chart-bar-group:hover .chart-bar-value {
+  opacity: 1;
+}
+
+.chart-bar-pillar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-hover));
+  height: 0;
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.chart-bar-pillar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
+  border-radius: 4px 4px 0 0;
+}
+
+.chart-bar-group:nth-child(even) .chart-bar-pillar {
+  background: linear-gradient(180deg, var(--color-success), var(--color-success-glow));
+}
+
+.chart-bar-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+/* Recent Activity List */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.activity-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-round);
+  background-color: var(--color-table-row-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.activity-badge.won {
+  color: var(--color-success);
+  background-color: var(--color-success-glow);
+}
+
+.activity-badge.help {
+  color: var(--color-danger);
+  background-color: var(--color-danger-glow);
+}
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activity-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.activity-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  align-self: flex-start;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Quick Actions Panel */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.quick-action-btn {
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--color-text-main);
+  text-align: center;
+}
+
+.quick-action-btn:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-glow);
+  transform: translateY(-2px);
+}
+
+.quick-action-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--color-primary);
+}

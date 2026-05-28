@@ -1,0 +1,295 @@
+/* ==========================================================================
+   Calendar View Search & Header
+   ========================================================================== */
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.calendar-search-bar-container {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+}
+
+.calendar-search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  font-size: 0.95rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text-main);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.calendar-search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.search-icon-inside {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Autocomplete suggestion dropdown */
+.search-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: var(--color-bg-sidebar);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  margin-top: 6px;
+  box-shadow: var(--shadow-lg);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none; /* controlled by JS */
+}
+
+.search-suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color var(--transition-fast);
+}
+
+.search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.search-suggestion-item:hover {
+  background-color: var(--color-table-row-hover);
+}
+
+.suggestion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suggestion-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.suggestion-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.suggestion-tag {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Calendar Grid Rendering
+   ========================================================================== */
+.calendar-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.current-month-display {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.calendar-nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card-bg);
+}
+
+.calendar-weekday-header {
+  grid-column: span 7;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--color-table-header);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.weekday-name {
+  padding: 12px 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.calendar-days-container {
+  grid-column: span 7;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* Individual Day Cell */
+.calendar-day-cell {
+  min-height: 120px;
+  padding: 8px;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.calendar-day-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.calendar-days-container > .calendar-day-cell:nth-last-child(-n+7) {
+  border-bottom: none;
+}
+
+.calendar-day-cell:hover {
+  background-color: rgba(99, 102, 241, 0.02);
+}
+
+.day-number-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-round);
+}
+
+.calendar-day-cell.current-day .day-number {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 0 8px var(--color-primary);
+}
+
+.calendar-day-cell.other-month {
+  opacity: 0.35;
+}
+
+.calendar-day-cell.other-month:hover {
+  opacity: 0.6;
+}
+
+/* Event List inside a day */
+.day-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Event Pill */
+.event-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.event-pill:hover {
+  transform: translateX(2px);
+  filter: brightness(1.1);
+}
+
+/* Event categories colors */
+.event-pill.presales {
+  background-color: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border-left-color: var(--color-primary);
+}
+
+.event-pill.postsales {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border-left-color: var(--color-success);
+}
+
+.event-pill.close-date {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-left-color: var(--color-danger);
+}
+
+.event-pill.custom-event {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-left-color: var(--color-warning);
+}
+
+/* ==========================================================================
+   Historical Search Filters (Fading & Highlighting)
+   ========================================================================== */
+/* Fading out non-matching elements */
+.calendar-day-cell.fade-out,
+.event-pill.fade-out {
+  opacity: 0.15 !important;
+  transform: scale(0.98);
+  pointer-events: none;
+}
+
+/* Highlighting matching elements */
+.event-pill.highlight {
+  box-shadow: 0 0 10px currentColor;
+  transform: scale(1.03);
+  animation: event-glow 1.5s infinite alternate;
+  z-index: 5;
+}
+
+@keyframes event-glow {
+  from { box-shadow: 0 0 4px currentColor; }
+  to { box-shadow: 0 0 12px currentColor; }
+}
+
+.calendar-day-cell.highlight {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.05);
+}
