@@ -1,0 +1,10 @@
+{
+  "name": "business-management-system",
+  "version": "1.0.0",
+  "description": "Business Management System with Google Cloud Integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y http-server -p 3000"
+  },
+  "dependencies": {}
+}
