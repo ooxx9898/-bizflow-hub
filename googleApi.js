@@ -34,12 +34,6 @@ export function isConnected() {
   return currentConfig.isConnected;
 }
 
-/**
- * Perform Sync Operation (supports both Demo/Mock sync and real API sync)
- * @param {Array} presalesData - Current presales in db
- * @param {Array} postsalesData - Current postsales in db
- * @param {Function} logCallback - Function to print terminal logs in UI (time, type, text)
- */
 export async function syncToGoogleCloud(presalesData, postsalesData, logCallback) {
   const printLog = (text, type = 'info') => {
     const time = new Date().toLocaleTimeString();
@@ -49,9 +43,6 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
   currentConfig = getGoogleConfig();
 
   if (currentConfig.isDemoMode) {
-    // ==========================================
-    // DEMO MOCK SYNC FLOW
-    // ==========================================
     printLog('初始化 Google 雲端連結服務...', 'info');
     await sleep(600);
     printLog('⚠️ 本地模擬模式 (Demo Mode) 已啟用，將繞過實際 API 金鑰驗證。', 'warning');
@@ -116,9 +107,6 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
     saveGoogleConfig(currentConfig);
     return true;
   } else {
-    // ==========================================
-    // REAL GOOGLE API SYNC FLOW (Active REST APIs)
-    // ==========================================
     printLog('開啟真實 Google API 連線...', 'info');
     if (!currentConfig.apiKey || !currentConfig.clientId) {
       printLog('❌ 同步失敗：請先設定 API 金鑰 (API Key) 與 用戶端 ID (Client ID)！', 'error');
@@ -135,7 +123,6 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
       
       let spreadsheetId = currentConfig.spreadsheetId;
       
-      // 1. Create spreadsheet if not exists
       if (!spreadsheetId) {
         printLog('未偵測到試算表 ID，正在您的雲端硬碟建立「業務管理系統_資料庫」...', 'info');
         spreadsheetId = await createNewSpreadsheet(accessToken);
@@ -146,27 +133,22 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
         printLog(`找到綁定試算表，ID: ${spreadsheetId}`, 'info');
       }
       
-      // 2. Initialize PreSales and PostSales Sheets (creating sheets tabs)
       printLog('確認試算表工作分頁：「PreSales」與「PostSales」...', 'info');
       await initializeSheetTabs(spreadsheetId, accessToken);
       
-      // 3. Sync PreSales data
       printLog(`正在向「PreSales」寫入 ${presalesData.length} 筆專案資料...`, 'info');
       await syncPreSalesToSheet(spreadsheetId, presalesData, accessToken);
       printLog('[試算表同步] 售前資料寫入完成！', 'success');
       
-      // 4. Sync PostSales data
       printLog(`正在向「PostSales」寫入 ${postsalesData.length} 筆收款資料...`, 'info');
       await syncPostSalesToSheet(spreadsheetId, postsalesData, accessToken);
       printLog('[試算表同步] 售後收款資料寫入完成！', 'success');
       
-      // 5. Sync Milestones to Google Calendar
       printLog('正在連接 Google Calendar (日曆) 服務...', 'info');
       await syncMilestonesToCalendar(presalesData, postsalesData, accessToken, printLog);
       
       printLog('🎉 雲端備份與雙向同步成功！全部資料已順利寫入 Google Cloud。', 'success');
       
-      // Get user email profile (best-effort)
       let userEmail = 'active.user@gmail.com';
       try {
         const userInfo = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -176,7 +158,6 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
           userEmail = userInfo.email;
         }
       } catch (e) {
-        // ignore email fetch failure
       }
       
       currentConfig.isConnected = true;
@@ -190,12 +171,10 @@ export async function syncToGoogleCloud(presalesData, postsalesData, logCallback
   }
 }
 
-// Helpers
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Load Google Identity Services script if not loaded
 function loadGoogleLibraries() {
   return new Promise((resolve) => {
     if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
@@ -213,7 +192,6 @@ function loadGoogleLibraries() {
   });
 }
 
-// Prompt OAuth access token dialog
 function requestAccessToken(clientId) {
   return new Promise((resolve, reject) => {
     try {
@@ -238,7 +216,6 @@ function requestAccessToken(clientId) {
   });
 }
 
-// Create new sheet
 async function createNewSpreadsheet(accessToken) {
   const response = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
     method: 'POST',
@@ -264,7 +241,6 @@ async function createNewSpreadsheet(accessToken) {
   return data.spreadsheetId;
 }
 
-// Check and create sheet tabs if they don't exist
 async function initializeSheetTabs(spreadsheetId, accessToken) {
   const getResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`, {
     headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -298,22 +274,18 @@ async function initializeSheetTabs(spreadsheetId, accessToken) {
   }
 }
 
-// Sync PreSales data to Sheets
 async function syncPreSalesToSheet(spreadsheetId, data, accessToken) {
-  // Clear sheet
   await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/PreSales!A:Z:clear`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${accessToken}` }
   });
   
-  // Headers
   const values = [[
     'ID', '專案名稱', '客戶名稱', '預估合約金額 (萬)', '預計簽約日期', 
     '目前進度狀態', '簽約機率 (%)', '聯絡人姓名', '聯絡電話', 
     '電子信箱', '專案描述備註', '風險燈號'
   ]];
   
-  // Rows
   data.forEach(p => {
     values.push([
       p.id || '',
@@ -331,7 +303,6 @@ async function syncPreSalesToSheet(spreadsheetId, data, accessToken) {
     ]);
   });
   
-  // Update
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/PreSales!A1?valueInputOption=RAW`, {
     method: 'PUT',
     headers: {
@@ -347,22 +318,18 @@ async function syncPreSalesToSheet(spreadsheetId, data, accessToken) {
   }
 }
 
-// Sync PostSales data to Sheets
 async function syncPostSalesToSheet(spreadsheetId, data, accessToken) {
-  // Clear sheet
   await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/PostSales!A:Z:clear`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${accessToken}` }
   });
   
-  // Headers
   const values = [[
     'ID', '客戶/專案名稱', '客約簽訂日期', '合約總金額 (萬)', '已開票進帳 (萬)', 
     '遞延收款 (萬)', '未開票待收 (萬)', '收款狀態', '困難求助備註', 
     '預估完驗日期', '結案日期', '客戶詳細資訊', '專案備註'
   ]];
   
-  // Rows
   data.forEach(p => {
     values.push([
       p.id || '',
@@ -381,7 +348,6 @@ async function syncPostSalesToSheet(spreadsheetId, data, accessToken) {
     ]);
   });
   
-  // Update
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/PostSales!A1?valueInputOption=RAW`, {
     method: 'PUT',
     headers: {
@@ -397,9 +363,7 @@ async function syncPostSalesToSheet(spreadsheetId, data, accessToken) {
   }
 }
 
-// Sync Milestones to Google Calendar
 async function syncMilestonesToCalendar(presales, postsales, accessToken, printLog) {
-  // Build milestone events list
   const events = [];
   
   presales.forEach(p => {
@@ -443,11 +407,9 @@ async function syncMilestonesToCalendar(presales, postsales, accessToken, printL
   
   printLog(`正在日曆中比對與建立 ${events.length} 個業務里程碑與足跡...`, 'info');
   
-  // Create calendar events sequentially (best-effort to prevent rate limits)
   let successCount = 0;
   for (const ev of events) {
     try {
-      // Basic check: search for existing event with same summary on the same day to prevent duplicates
       const listResponse = await fetch(
         `https://www.googleapis.com/calendar/v3/calendars/primary/events?q=${encodeURIComponent(ev.summary)}&timeMin=${ev.date}T00:00:00Z&timeMax=${ev.date}T23:59:59Z`,
         { headers: { 'Authorization': `Bearer ${accessToken}` } }
@@ -456,12 +418,10 @@ async function syncMilestonesToCalendar(presales, postsales, accessToken, printL
       if (listResponse.ok) {
         const listData = await listResponse.json();
         if (listData.items && listData.items.length > 0) {
-          // Event already exists, skip it
           continue;
         }
       }
       
-      // Create new event
       const createResponse = await fetch(
         'https://www.googleapis.com/calendar/v3/calendars/primary/events',
         {
@@ -474,7 +434,7 @@ async function syncMilestonesToCalendar(presales, postsales, accessToken, printL
             summary: ev.summary,
             description: ev.description,
             start: { date: ev.date },
-            end: { date: ev.date } // All-day event
+            end: { date: ev.date }
           })
         }
       );
@@ -486,7 +446,6 @@ async function syncMilestonesToCalendar(presales, postsales, accessToken, printL
         }
       }
     } catch (e) {
-      // Skip error and continue
     }
   }
   
